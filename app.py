@@ -12,6 +12,7 @@ Video Downloader API
 - 自动文件清理
 - 文件名规范化
 - 定时任务调度
+- 支持自定义CA证书
 
 使用方法:
     $ python app.py
@@ -20,6 +21,7 @@ Video Downloader API
     DOWNLOAD_DIR: 下载目录路径（可选，默认使用临时目录）
     PORT: 服务端口（可选，默认 8000）
     CLEANUP_INTERVAL_HOURS: 文件清理间隔（可选，默认 24 小时）
+    CA_CERT_PATH: CA证书路径（可选，用于处理MITM代理）
 """
 
 import os
@@ -44,6 +46,7 @@ DEFAULT_MAX_FILENAME_LENGTH = 100
 DOWNLOAD_DIR = os.getenv('DOWNLOAD_DIR', os.path.join(tempfile.gettempdir(), 'video_downloader'))
 PORT = int(os.getenv('PORT', DEFAULT_PORT))
 CLEANUP_INTERVAL_HOURS = int(os.getenv('CLEANUP_INTERVAL_HOURS', DEFAULT_CLEANUP_INTERVAL_HOURS))
+CA_CERT_PATH = os.getenv('CA_CERT_PATH')
 
 # 日志配置
 logging.basicConfig(
@@ -128,6 +131,15 @@ def get_download_options(format_type: str, base_filename: str) -> Dict[str, Any]
         'format': format_opt,
         'progress_hooks': [lambda d: logger.info(f'下载进度: {d.get("status")}, {d.get("filename", "未知文件名")}')],
     }
+    
+    # 如果指定了CA证书路径，添加到选项中
+    if CA_CERT_PATH and os.path.exists(CA_CERT_PATH):
+        options['nocheckcertificate'] = False
+        options['cafile'] = CA_CERT_PATH
+        logger.info(f"使用自定义CA证书: {CA_CERT_PATH}")
+    else:
+        options['nocheckcertificate'] = True
+        logger.warning("未指定CA证书或证书文件不存在，将跳过证书验证")
     
     if format_type == 'audio':
         options.update({
