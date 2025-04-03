@@ -32,6 +32,7 @@ import logging
 import tempfile
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 from flask import Flask, request, jsonify, send_file, Response
 import yt_dlp
@@ -191,17 +192,22 @@ def download_video() -> Response:
             
             original_title = info.get('title', 'video')
             file_ext = os.path.splitext(downloaded_file)[1]
-            safe_title = f"{sanitize_filename(original_title)}{file_ext}"
+            safe_title = sanitize_filename(original_title)
+            
+            # 对文件名进行URL编码
+            encoded_filename = quote(f"{safe_title}{file_ext}")
             
             response = send_file(
                 downloaded_file,
                 as_attachment=True,
-                download_name=safe_title,
+                download_name=encoded_filename,
                 mimetype='application/octet-stream'
             )
             
+            # 设置Content-Disposition头，使用RFC 5987编码
             response.headers.update({
-                'X-Filename': safe_title,
+                'Content-Disposition': f"attachment; filename*=UTF-8''{encoded_filename}",
+                'X-Filename': encoded_filename,
                 'X-File-Type': format_type
             })
             
