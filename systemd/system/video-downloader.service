@@ -1,0 +1,30 @@
+[Unit]
+Description=Video Downloader Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=your_username
+Group=your_group
+WorkingDirectory=/path/to/video_downloader
+Environment=PYTHONUNBUFFERED=1
+Environment=DOWNLOAD_DIR=/path/to/video_downloader/downloads
+Environment=PORT=8000
+Environment=CLEANUP_INTERVAL_HOURS=24
+Environment=CA_CERT_PATH=/path/to/video_downloader/certs/ca.crt
+
+# 启动命令
+ExecStart=/path/to/.venv/bin/python app.py
+
+# 自动重启配置
+Restart=always
+RestartSec=10
+StartLimitInterval=0
+
+# 安全配置
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target 
