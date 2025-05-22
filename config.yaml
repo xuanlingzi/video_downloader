@@ -1,0 +1,32 @@
+# 下载配置
+app:
+  port: 8080
+  output_dir: "downloads"
+  format: "video" # 默认下载格式
+  max_retries: 3 # 下载失败重试次数
+  cleanup_interval_hours: 24 # 文件清理间隔（可选，默认 24 小时）
+
+# 网站特定配置
+sites:
+  bilibili:
+    domains:
+      - bilibili.com
+      - b23.tv
+    cookies: ""
+  youtube:
+    domains:
+      - youtube.com
+      - youtu.be
+      - youtube-nocookie.com
+      - youtube.googleapis.com
+    cookies: ""
+  douyin:
+    domains:
+      - douyin.com
+      - iesdouyin.com
+    cookies: ""
+  twitter:
+    domains:
+      - twitter.com
+      - x.com
+    cookies: ""
